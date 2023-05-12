@@ -21,8 +21,5 @@ const executeScript = (dateTime: string) => {
   });
 };
 
-// Ejemplo de uso: puedes reemplazar esto con la lógica del daemon para recibir fechas y ejecutar el script
-const dateTime = "2024-07-18 15:00:00";
-executeScript(dateTime);
 
 console.log('Daemon is running...');

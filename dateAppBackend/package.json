@@ -1,11 +1,11 @@
 {
-  "name": "backend",
+ "name": "dateAppBackend",
   "version": "1.0.0",
   "main": "src/app.ts",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/app.ts",
-    "daemon": "ts-node src/daemon.ts",
-    "install-daemon": "./install-daemon.sh"
+    "install-daemon": "./install-daemon.sh",
+    "daemon": "ts-node src/daemon.ts"
   },
   "dependencies": {
     "@types/cors": "^2.8.17",

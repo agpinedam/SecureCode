@@ -1,8 +1,8 @@
 // src/controllers/timeController.ts
 import { Request, Response } from 'express';
-import path from 'path';
+import { exec } from 'child_process';
 import fs from 'fs';
-import { exec } from 'child_process'; // Importa 'exec' desde 'child_process'
+import path from 'path';
 
 // Ruta al script bash
 const scriptPath = path.resolve(__dirname, '../../src/scripts/set-time.sh');

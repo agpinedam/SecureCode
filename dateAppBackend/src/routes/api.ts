@@ -8,6 +8,6 @@ const router = Router();
 
 router.post('/login', loginController);
 router.post('/formatDate', formatDateController);
-router.post('/setTime', setTimeController); // Agregar la ruta para configurar la hora
+router.post('/set-time', setTimeController);
 
 export default router;

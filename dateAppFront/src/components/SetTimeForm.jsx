@@ -14,7 +14,7 @@ const SetTimeForm = () => {
         return;
       }
 
-      const response = await axios.post('http://localhost:5000/api/setTime', {
+      const response = await axios.post('http://localhost:5000/api/set-time', {
         dateTime,
       });
       alert(response.data.message); // Mostrar el mensaje de éxito

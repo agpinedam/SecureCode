@@ -1,6 +1,16 @@
 {
-  "dependencies": {
-    "axios": "^1.7.2",
-    "prop-types": "^15.8.1"
+  "name": "your-project",
+  "version": "1.0.0",
+  "main": "main.js",
+  "scripts": {
+    "start": "npm run start-all",
+    "start-all": "npm run init-all && npm run start-electron",
+    "init-all": "cd dateAppBackend && npm install && cd ../dateAppFront && npm install",
+    "init-backend": "cd dateAppBackend && npm run daemon && npm run backend",
+    "init-frontend": "cd dateAppFront && npm run start",
+    "start-electron": "electron ."
+  },
+  "devDependencies": {
+    "electron": "^24.3.1"
   }
 }
