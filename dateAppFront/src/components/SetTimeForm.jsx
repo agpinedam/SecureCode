@@ -9,8 +9,15 @@ const SetTimeForm = () => {
   const handleSetTime = async () => {
     try {
       const dateTime = `${date} ${time}`;
-      await axios.post('http://localhost:5000/api/setTime', { dateTime });
-      alert('Time set successfully');
+      if (!date || !time) {
+        alert('Please provide both date and time.');
+        return;
+      }
+
+      const response = await axios.post('http://localhost:5000/api/setTime', {
+        dateTime,
+      });
+      alert(response.data.message); // Mostrar el mensaje de éxito
     } catch (error) {
       console.error('Error setting time:', error);
       alert('Failed to set time');
