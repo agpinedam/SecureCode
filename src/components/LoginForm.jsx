@@ -1,15 +1,21 @@
 // src/components/LoginForm.jsx
 
 import React, { useState } from 'react';
+import useAuthHook from '../hooks/useAuth';
+import { validateInput } from '../utils/validateInput';
 
-function LoginForm({ onLogin }) {
+const LoginForm = () => {
   const [usuario, setUsuario] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const { login } = useAuthHook();
 
   const handleLogin = () => {
-    if (usuario === 'user' && password === '123') {
-      onLogin(); // Llama a la función onLogin proporcionada por props para iniciar sesión
+    const sanitizedUsuario = validateInput(usuario);
+    const sanitizedPassword = validateInput(password);
+
+    if (sanitizedUsuario === 'user' && sanitizedPassword === '123') {
+      login();
       setError('');
     } else {
       setError('Usuario o contraseña incorrectos');
@@ -24,7 +30,7 @@ function LoginForm({ onLogin }) {
         <input
           type="text"
           value={usuario}
-          onChange={(e) => setUsuario(e.target.value)}
+          onChange={(e) => setUsuario(validateInput(e.target.value))}
         />
       </div>
       <div>
@@ -32,13 +38,13 @@ function LoginForm({ onLogin }) {
         <input
           type="password"
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={(e) => setPassword(validateInput(e.target.value))}
         />
       </div>
       <button onClick={handleLogin}>Iniciar sesión</button>
       {error && <p>{error}</p>}
     </div>
   );
-}
+};
 
 export default LoginForm;

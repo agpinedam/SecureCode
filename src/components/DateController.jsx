@@ -2,14 +2,16 @@
 
 import React, { useState } from 'react';
 import DateFormatter from '../utils/DateFormatter';
+import { validateInput } from '../utils/validateInput';
 
-function DateController() {
+const DateController = () => {
   const [formatoUsuario, setFormatoUsuario] = useState('');
   const [fechaFormateada, setFechaFormateada] = useState('');
 
   const handleProcesarClick = () => {
     try {
-      const formattedDate = DateFormatter.formatearFecha(formatoUsuario);
+      const sanitizedFormat = validateInput(formatoUsuario);
+      const formattedDate = DateFormatter.formatearFecha(sanitizedFormat);
       setFechaFormateada(`Fecha formateada: ${formattedDate}`);
     } catch (error) {
       setFechaFormateada('El formato ingresado no es válido.');
@@ -17,7 +19,7 @@ function DateController() {
   };
 
   const handleFormatChange = (e) => {
-    setFormatoUsuario(e.target.value);
+    setFormatoUsuario(validateInput(e.target.value));
   };
 
   return (
@@ -33,6 +35,6 @@ function DateController() {
       <label>{fechaFormateada}</label>
     </div>
   );
-}
+};
 
 export default DateController;

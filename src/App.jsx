@@ -1,25 +1,28 @@
 // src/App.jsx
 
-import React, { useState } from 'react';
+import React from 'react';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 import LoginForm from './components/LoginForm';
 import DateController from './components/DateController';
 
-function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  const handleLogin = () => {
-    setIsLoggedIn(true);
-  };
+const App = () => {
+  const { isLoggedIn } = useAuth();
 
   return (
     <div className="App">
       {!isLoggedIn ? (
-        <LoginForm onLogin={handleLogin} />
+        <LoginForm />
       ) : (
         <DateController />
       )}
     </div>
   );
-}
+};
 
-export default App;
+const RootApp = () => (
+  <AuthProvider>
+    <App />
+  </AuthProvider>
+);
+
+export default RootApp;
