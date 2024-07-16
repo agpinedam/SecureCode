@@ -1,18 +1,13 @@
 {
   "compilerOptions": {
-    "types": [
-      "node",
-      "express"
-    ],
-    "typeRoots": [
-      "./typings", // Directorio donde están tus definiciones globales
-      "./node_modules/@types"
-    ],
+    "target": "ES6",
+    "module": "commonjs",
+    "strict": true,
     "esModuleInterop": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "outDir": "./dist"
   },
-  "include": [
-    "src/**/*.ts",
-    "typings/**/*.d.ts" // Asegúrate de incluir los archivos de definición
-  ]
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules"]
 }

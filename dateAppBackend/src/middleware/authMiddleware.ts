@@ -1,19 +1,19 @@
 import { Request, Response, NextFunction } from 'express';
-import jwt, { JwtPayload } from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 
-export const authenticateToken = (req: Request, res: Response, next: NextFunction) => {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
+export const verifyToken = (req: Request, res: Response, next: NextFunction) => {
+  const token = req.headers['authorization']?.split(' ')[1];
 
   if (!token) {
-    return res.sendStatus(401); // Unauthorized si no hay token
+    return res.status(403).send('No token provided');
   }
 
-  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET as string, (err, user) => {
+  jwt.verify(token, process.env.JWT_SECRET!, (err, decoded) => {
     if (err) {
-      return res.sendStatus(403); // Forbidden si hay un error en la verificación del token
+      return res.status(500).send('Failed to authenticate token');
     }
-    req.user = user as JwtPayload; // Asigna el usuario decodificado al objeto 'user' en 'req'
-    next(); // Pasa al siguiente middleware o controlador
+
+    (req as any).userId = (decoded as any).id;
+    next();
   });
 };

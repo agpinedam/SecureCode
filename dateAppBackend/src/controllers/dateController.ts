@@ -1,12 +1,7 @@
-// Ejemplo en un controlador (dateController.ts)
-
 import { Request, Response } from 'express';
 
-export const getCurrentDate = (req: Request, res: Response) => {
-  if (req.user) {
-    const currentDate = new Date().toDateString();
-    res.json({ date: currentDate, user: req.user });
-  } else {
-    res.status(401).json({ message: 'Unauthorized' });
-  }
+export const formatDate = (req: Request, res: Response) => {
+  const { format } = req.body;
+  const formattedDate = new Date().toLocaleDateString('en-US', { dateStyle: format });
+  res.json({ formattedDate });
 };

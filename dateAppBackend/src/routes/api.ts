@@ -1,10 +1,8 @@
 import express from 'express';
-import { getCurrentDate } from '../controllers/dateController';
-import { authenticateToken } from '../middleware/authMiddleware';
+import { formatDate } from '../controllers/dateController';
 
 const router = express.Router();
 
-// Ruta protegida que requiere autenticación
-router.get('/date', authenticateToken, getCurrentDate);
+router.post('/format', formatDate);
 
 export default router;
