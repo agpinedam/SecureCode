@@ -1,27 +1,18 @@
 import { Request, Response } from 'express';
+import security from '../utils/security';
 
-export const formatDateController = (req: Request, res: Response) => {
-  const { date } = req.body;
-
-  if (!date) {
-    return res.status(400).json({ error: 'Date is required' });
-  }
+export const formatDateController = (req: Request, res: Response): void => {
+  const { format } = req.body;
 
   try {
-    const formattedDate = formatDate(date);
-    res.json({ formattedDate });
+    // Aquí se obtiene el ID de usuario desde el token JWT usando el middleware de verificación de token
+    const userId = security.getUserIdFromToken(req);
+
+    const formattedDate = security.formatDate(format);
+
+    res.status(200).json({ formattedDate, userId });
   } catch (error) {
     console.error('Error formatting date:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
-};
-
-const formatDate = (date: string): string => {
-  const parsedDate = new Date(date);
-  if (isNaN(parsedDate.getTime())) {
-    throw new Error('Invalid date format');
-  }
-  return parsedDate.toLocaleDateString('en-US', {
-    dateStyle: 'long', // Valores válidos: 'full', 'long', 'medium', 'short'
-  });
 };

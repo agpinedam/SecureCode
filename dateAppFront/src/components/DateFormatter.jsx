@@ -1,28 +1,30 @@
 import React, { useState } from 'react';
-import { formatDate } from '../services/api';
+import axios from 'axios';
 
 const DateFormatter = () => {
-  const [date, setDate] = useState('');
+  const [format, setFormat] = useState('');
   const [formattedDate, setFormattedDate] = useState('');
+  const apiUrl = 'http://localhost:5000/api'; // Cambia esto si tu API tiene una URL diferente
 
   const handleFormatDate = async () => {
     try {
-      const result = await formatDate(date);
-      setFormattedDate(result.formattedDate);
+      const response = await axios.post(`${apiUrl}/formatDate`, { format });
+      setFormattedDate(response.data.formattedDate);
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Error formatting date:', error);
     }
   };
 
   return (
     <div>
       <input
-        type="date"
-        value={date}
-        onChange={(e) => setDate(e.target.value)}
+        type="text"
+        placeholder="Enter date format"
+        value={format}
+        onChange={(e) => setFormat(e.target.value)}
       />
       <button onClick={handleFormatDate}>Format Date</button>
-      {formattedDate && <div>Formatted Date: {formattedDate}</div>}
+      <p>Formatted Date: {formattedDate}</p>
     </div>
   );
 };
