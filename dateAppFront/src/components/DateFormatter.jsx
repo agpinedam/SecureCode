@@ -2,28 +2,27 @@ import React, { useState } from 'react';
 import { formatDate } from '../services/api';
 
 const DateFormatter = () => {
-  const [format, setFormat] = useState('');
+  const [date, setDate] = useState('');
   const [formattedDate, setFormattedDate] = useState('');
 
   const handleFormatDate = async () => {
     try {
-      const response = await formatDate(format);
-      setFormattedDate(response.data.formattedDate);
+      const result = await formatDate(date);
+      setFormattedDate(result.formattedDate);
     } catch (error) {
-      console.error(error);
+      console.error('Error:', error);
     }
   };
 
   return (
     <div>
       <input
-        type="text"
-        placeholder="Enter date format"
-        value={format}
-        onChange={(e) => setFormat(e.target.value)}
+        type="date"
+        value={date}
+        onChange={(e) => setDate(e.target.value)}
       />
       <button onClick={handleFormatDate}>Format Date</button>
-      <p>Formatted Date: {formattedDate}</p>
+      {formattedDate && <div>Formatted Date: {formattedDate}</div>}
     </div>
   );
 };

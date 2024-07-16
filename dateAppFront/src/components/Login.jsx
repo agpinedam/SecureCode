@@ -5,37 +5,34 @@ const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleLogin = async () => {
     try {
-      const response = await login(username, password);
-      console.log(response.data); // Maneja la respuesta del login
-      localStorage.setItem('token', response.data.token); // Guarda el token en el localStorage
+      const credentials = { username, password };
+      const result = await login(credentials);
+      console.log('Login successful:', result);
+      // Handle successful login (e.g., redirect, save token, etc.)
     } catch (error) {
-      console.error(error);
+      console.error('Login failed:', error);
+      // Handle login error (e.g., show error message)
     }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <div>
-        <label>Username:</label>
-        <input
-          type="text"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-        />
-      </div>
-      <div>
-        <label>Password:</label>
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-      </div>
-      <button type="submit">Login</button>
-    </form>
+    <div>
+      <input
+        type="text"
+        placeholder="Username"
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
+      />
+      <input
+        type="password"
+        placeholder="Password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
+      <button onClick={handleLogin}>Login</button>
+    </div>
   );
 };
 
