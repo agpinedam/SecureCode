@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { login } from '../services/api';
+import axios from 'axios';
 
 const Login = () => {
   const [username, setUsername] = useState('');
@@ -8,10 +8,14 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await login(username, password);
-      console.log(response.data); // Manejar la respuesta del login aquí
+      const response = await axios.post('http://localhost:5000/auth/login', {
+        username,
+        password,
+      });
+      console.log('Login successful:', response.data);
+      // Aquí puedes manejar la respuesta del login, como redirigir a otra página
     } catch (error) {
-      console.error(error);
+      console.error('Error logging in:', error);
     }
   };
 
