@@ -1,7 +1,13 @@
+// dateAppBackend/src/app.ts
+
 import express from 'express';
 import cors from 'cors';
 import apiRouter from './routes/api';
 import authRouter from './routes/auth';
+import dotenv from 'dotenv';
+
+// Cargar variables de entorno desde .env
+dotenv.config();
 
 const app = express();
 

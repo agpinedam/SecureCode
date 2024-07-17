@@ -1,3 +1,5 @@
+// dateAppFrontend/src/components/Login.jsx
+
 import React, { useState } from 'react';
 import axios from 'axios';
 
@@ -13,6 +15,8 @@ const Login = () => {
         password,
       });
       console.log('Login successful:', response.data);
+      // Guarda el token en el localStorage
+      localStorage.setItem('token', response.data.token);
       // Aquí puedes manejar la respuesta del login, como redirigir a otra página
     } catch (error) {
       console.error('Error logging in:', error);

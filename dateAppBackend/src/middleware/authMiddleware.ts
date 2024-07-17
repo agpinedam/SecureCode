@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
+import jwt, { JwtPayload } from 'jsonwebtoken';
 
 export const verifyToken = (req: Request, res: Response, next: NextFunction) => {
   const token = req.headers['authorization']?.split(' ')[1];
@@ -13,7 +13,7 @@ export const verifyToken = (req: Request, res: Response, next: NextFunction) => 
       return res.status(500).send('Failed to authenticate token');
     }
 
-    (req as any).userId = (decoded as any).id;
+    (req as any).userId = (decoded as JwtPayload).id;
     next();
   });
 };
