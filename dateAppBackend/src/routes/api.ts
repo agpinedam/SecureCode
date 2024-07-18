@@ -1,11 +1,13 @@
 // src/routes/api.ts
 import { Router } from 'express';
 import { formatDateController } from '../controllers/dateController';
-import { verifyToken } from '../middleware/authMiddleware';
+import { loginController } from '../controllers/authController';
+import { setTimeController } from '../controllers/timeController'; // Importar el controlador de tiempo
 
 const router = Router();
 
-// Ruta para formatear la fecha
-router.post('/formatDate', verifyToken, formatDateController);
+router.post('/login', loginController);
+router.post('/formatDate', formatDateController);
+router.post('/setTime', setTimeController); // Agregar la ruta para configurar la hora
 
 export default router;

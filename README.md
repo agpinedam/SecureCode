@@ -8,3 +8,9 @@ Currently, two official plugins are available:
 - [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
 // "start": "node build/index.js"
+
+Verificar que el usuario tenga este permiso 
+angie ALL=(ALL) NOPASSWD: /bin/date
+ tambien desactivar esto
+ 
+ sudo timedatectl set-ntp false

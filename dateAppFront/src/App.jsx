@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Login from './components/Login';
 import DateFormatter from './components/DateFormatter';
+import SetTimeForm from './components/SetTimeForm';
 import './App.css';
 
 function App() {
@@ -15,7 +16,10 @@ function App() {
   return (
     <div className="App">
       {isLoggedIn ? (
-        <DateFormatter token={token} />
+        <>
+          <DateFormatter token={token} />
+          <SetTimeForm />
+        </>
       ) : (
         <Login onLogin={handleLogin} />
       )}
