@@ -1,5 +1,6 @@
 // src/middleware/authMiddleware.ts
 import { Request, Response, NextFunction } from 'express';
+import jwt from 'jsonwebtoken';
 import security from '../utils/security';
 
 export const verifyToken = (req: Request, res: Response, next: NextFunction) => {
@@ -9,12 +10,12 @@ export const verifyToken = (req: Request, res: Response, next: NextFunction) => 
     return res.status(403).send('No token provided');
   }
 
-  const decoded = security.verifyToken(token);
+  jwt.verify(token, process.env.JWT_SECRET || 'jwtsecretkey', (err, decoded) => {
+    if (err) {
+      return res.status(500).send('Failed to authenticate token');
+    }
 
-  if (!decoded) {
-    return res.status(500).send('Failed to authenticate token');
-  }
-
-  (req as any).userId = decoded.username; // Añade el ID de usuario a la solicitud
-  next();
+    (req as any).userId = (decoded as any).username; // Asegúrate de usar el campo correcto del token
+    next();
+  });
 };

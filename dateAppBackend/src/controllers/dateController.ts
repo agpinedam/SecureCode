@@ -2,16 +2,25 @@
 import { Request, Response } from 'express';
 import security from '../utils/security';
 
+const sanitizeDateFormat = (format: string): string => {
+  // Permite solo ciertos caracteres para evitar inyecciones
+  return format.replace(/[^yMdHms\-/.]/g, ''); // Ajustado para permitir el guion (-)
+};
+
 export const formatDateController = (req: Request, res: Response): void => {
-  const { format } = req.body;
+  let { format } = req.body;
+
+  // Sanitiza el formato de la fecha
+  format = sanitizeDateFormat(format);
 
   try {
-    const userId = security.getUserIdFromToken(req); // Obtiene el ID de usuario desde el token
+    const userId = security.getUserIdFromToken(req);
 
     if (!userId) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
+    // Genera la fecha formateada
     const formattedDate = security.formatDate(format);
 
     res.status(200).json({ formattedDate, userId });

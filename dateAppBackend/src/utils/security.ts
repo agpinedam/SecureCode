@@ -31,10 +31,10 @@ export const comparePasswords = async (plainPassword: string, hashedPassword: st
   return bcrypt.compare(plainPassword, hashedPassword);
 };
 
-// Función para formatear la fecha según el formato dado
 export const formatDate = (format: string): string => {
   const currentDate = new Date();
 
+  // Aquí se valida el formato aceptado
   return format
     .replace(/yyyy/g, currentDate.getFullYear().toString())
     .replace(/yy/g, String(currentDate.getFullYear()).slice(-2))
@@ -44,6 +44,7 @@ export const formatDate = (format: string): string => {
     .replace(/mm/g, String(currentDate.getMinutes()).padStart(2, '0'))
     .replace(/ss/g, String(currentDate.getSeconds()).padStart(2, '0'));
 };
+
 
 // Middleware para obtener el ID de usuario desde el token JWT
 export const getUserIdFromToken = (req: Request): string | undefined => {

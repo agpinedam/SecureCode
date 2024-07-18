@@ -1,23 +1,14 @@
+// src/services/authService.ts
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
+// Configuración secreta para la generación de JWT
 const JWT_SECRET = process.env.JWT_SECRET || 'jwtsecretkey';
 
-// No puedes usar await directamente fuera de una función asincrónica
-// Por lo tanto, debes inicializar users dentro de una función asincrónica
-const initializeUsers = async () => {
-  const hashedPassword = await bcrypt.hash('123456', 10); // Hashed password
-  return {
-    user1: hashedPassword
-  };
+// Simulamos una base de datos con un usuario
+const users: { [key: string]: string } = {
+  user1: await bcrypt.hash('SecurePassword123', 10) // Contraseña encriptada
 };
-
-let users: { [key: string]: string } = {};
-
-// Llama a initializeUsers dentro de una función asincrónica para inicializar users
-initializeUsers().then((initializedUsers) => {
-  users = initializedUsers;
-});
 
 export const getStoredPasswordHash = async (username: string): Promise<string | null> => {
   return users[username] || null;
