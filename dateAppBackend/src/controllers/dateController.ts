@@ -1,15 +1,17 @@
 import { Request, Response } from 'express';
-import security from '../utils/security';
+import { formatDate } from '../services/dateService';
+import { getUserIdFromToken } from '../utils/security';
 
 export const formatDateController = (req: Request, res: Response): void => {
   const { format } = req.body;
 
   try {
-    // Aquí se obtiene el ID de usuario desde el token JWT usando el middleware de verificación de token
-    const userId = security.getUserIdFromToken(req);
+    const userId = getUserIdFromToken(req);
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
 
-    const formattedDate = security.formatDate(format);
-
+    const formattedDate = formatDate(format);
     res.status(200).json({ formattedDate, userId });
   } catch (error) {
     console.error('Error formatting date:', error);
