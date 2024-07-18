@@ -1,18 +1,19 @@
 // src/controllers/authController.ts
 import { Request, Response } from 'express';
-import { getStoredPasswordHash, generateToken, comparePasswords } from '../services/authService';
+import { getUserByUsername } from '../models/userModel'; // Ajusta según tu estructura de proyecto
+import { generateToken, comparePasswords } from '../utils/security';
 
 export const loginController = async (req: Request, res: Response) => {
   const { username, password } = req.body;
 
   try {
-    const storedPasswordHash = await getStoredPasswordHash(username);
+    const user = getUserByUsername(username);
 
-    if (!storedPasswordHash) {
+    if (!user) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    const passwordMatch = await comparePasswords(password, storedPasswordHash);
+    const passwordMatch = await comparePasswords(password, user.password);
 
     if (passwordMatch) {
       const token = generateToken({ username });

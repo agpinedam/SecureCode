@@ -1,13 +1,19 @@
 {
   "compilerOptions": {
-    "target": "ES6",
-    "module": "commonjs",
+    "target": "es2017", // o una versión superior que soporte top-level await
+    "module": "commonjs", // asegúrate de usar 'commonjs' como módulo si estás trabajando en Node.js
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "outDir": "./dist",
-    "typeRoots": ["./node_modules/@types", "./src/types"]
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "jsx": "react",
+    "lib": ["es2017", "dom"],
+    "allowSyntheticDefaultImports": true,
+    "noImplicitAny": true,
+    "noImplicitReturns": true
   },
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
   "exclude": ["node_modules"]
 }
