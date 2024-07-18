@@ -9,7 +9,7 @@ const DateFormatter = ({ token }) => {
   const handleFormat = async () => {
     try {
       const response = await axios.post(
-        '/api/formatDate',
+        'http://localhost:5000/api/formatDate',
         { format },
         {
           headers: {

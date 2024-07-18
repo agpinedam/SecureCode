@@ -10,7 +10,10 @@ const Login = ({ onLogin }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('/auth/login', { username, password });
+      const response = await axios.post('http://localhost:5000/auth/login', {
+        username,
+        password,
+      });
       onLogin(response.data.token);
     } catch (error) {
       setError('Invalid credentials');
