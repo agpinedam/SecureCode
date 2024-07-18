@@ -1,5 +1,3 @@
-// dateAppBackend/src/routes/api.ts
-
 import { Router } from 'express';
 import { formatDateController } from '../controllers/dateController';
 import { verifyToken } from '../middleware/authMiddleware';

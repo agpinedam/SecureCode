@@ -1,17 +1,26 @@
-// dateAppBackend/src/controllers/authController.ts
-
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
 
-export const loginController = (req: Request, res: Response) => {
+const loginController = async (req: Request, res: Response) => {
   const { username, password } = req.body;
 
-  if (username === 'user' && password === '123') {
-    const token = jwt.sign({ id: username }, process.env.JWT_SECRET!, {
-      expiresIn: '1h',
-    });
-    return res.json({ message: 'Login successful', token });
+  const user = {
+    username: 'user',
+    password: await bcrypt.hash('123', 10) // Hash de la contraseña para comparación
+  };
+
+  if (username === user.username) {
+    const passwordMatch = await bcrypt.compare(password, user.password);
+    if (passwordMatch) {
+      const token = jwt.sign({ username: user.username }, process.env.JWT_SECRET as string, { expiresIn: '1h' });
+      res.json({ token });
+    } else {
+      res.status(401).json({ message: 'Contraseña incorrecta' });
+    }
   } else {
-    return res.status(401).json({ error: 'Invalid credentials' });
+    res.status(401).json({ message: 'Usuario no encontrado' });
   }
 };
+
+export { loginController };

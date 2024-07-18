@@ -1,29 +1,40 @@
-// dateAppFrontend/src/services/api.js
+// src/services/api.js
 
 import axios from 'axios';
 
-const api = axios.create({
-  baseURL: 'http://localhost:5000',
-});
+const API_URL = 'http://localhost:5000';
 
-// Interceptor para añadir el token a las solicitudes
-api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  },
-);
-
-export const login = (username, password) => {
-  return api.post('/auth/login', { username, password });
+export const loginUser = async (username, password) => {
+  try {
+    const response = await axios.post(
+      `${API_URL}/auth/login`,
+      { username, password },
+      { withCredentials: true },
+    );
+    return response.data;
+  } catch (error) {
+    throw error.response.data;
+  }
 };
 
-export const formatDate = (format) => {
-  return api.post('/api/formatDate', { format });
+export const fetchDate = async () => {
+  try {
+    const response = await axios.get(`${API_URL}/date`);
+    return response.data;
+  } catch (error) {
+    throw error.response.data;
+  }
+};
+
+export const formatDate = async (format) => {
+  try {
+    const response = await axios.post(
+      `${API_URL}/date/formatDate`,
+      { format },
+      { withCredentials: true },
+    );
+    return response.data;
+  } catch (error) {
+    throw error.response.data;
+  }
 };

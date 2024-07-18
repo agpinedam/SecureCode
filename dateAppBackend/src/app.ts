@@ -1,25 +1,25 @@
-// dateAppBackend/src/app.ts
-
 import express from 'express';
 import cors from 'cors';
 import apiRouter from './routes/api';
 import authRouter from './routes/auth';
-import dotenv from 'dotenv';
-
-// Cargar variables de entorno desde .env
-dotenv.config();
 
 const app = express();
 
-// Middleware para permitir solicitudes desde cualquier origen
-app.use(cors());
+// Configuración de CORS
+const corsOptions = {
+  origin: 'http://localhost:3000',
+  credentials: true,
+  allowedHeaders: ['Content-Type', 'Authorization'], // Asegúrate de permitir el encabezado Authorization
+};
+
+app.use(cors(corsOptions));
 
 // Middleware para parsear el body de las solicitudes como JSON
 app.use(express.json());
 
 // Rutas principales de la API
 app.use('/api', apiRouter);
-app.use('/auth', authRouter); // Ruta para las operaciones de autenticación
+app.use('/auth', authRouter);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

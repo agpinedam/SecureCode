@@ -1,7 +1,3 @@
-// src/utils/security.ts
-
-// src/utils/security.ts
-
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import { Request } from 'express';

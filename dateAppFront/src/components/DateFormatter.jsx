@@ -1,31 +1,32 @@
-// dateAppFrontend/src/components/DateFormatter.jsx
-
 import React, { useState } from 'react';
 import { formatDate } from '../services/api';
 
 const DateFormatter = () => {
   const [format, setFormat] = useState('');
-  const [formattedDate, setFormattedDate] = useState('');
+  const [result, setResult] = useState('');
 
   const handleFormatDate = async () => {
     try {
       const response = await formatDate(format);
-      setFormattedDate(response.data.formattedDate);
+      setResult(response.data);
     } catch (error) {
-      console.error('Error formatting date:', error);
+      console.error('Error al formatear la fecha', error);
     }
   };
 
   return (
     <div>
-      <input
-        type="text"
-        placeholder="Enter date format"
-        value={format}
-        onChange={(e) => setFormat(e.target.value)}
-      />
+      <h2>Format Date</h2>
+      <div>
+        <label>Format:</label>
+        <input
+          type="text"
+          value={format}
+          onChange={(e) => setFormat(e.target.value)}
+        />
+      </div>
       <button onClick={handleFormatDate}>Format Date</button>
-      <p>Formatted Date: {formattedDate}</p>
+      {result && <div>Formatted Date: {result}</div>}
     </div>
   );
 };

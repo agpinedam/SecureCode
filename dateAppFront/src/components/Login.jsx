@@ -1,48 +1,54 @@
-// dateAppFrontend/src/components/Login.jsx
+// src/components/Login.jsx
 
 import React, { useState } from 'react';
-import axios from 'axios';
+import { loginUser } from '../services/api'; // Asegúrate de importarlo correctamente
 
 const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+
+  const handleUsernameChange = (e) => {
+    setUsername(e.target.value);
+  };
+
+  const handlePasswordChange = (e) => {
+    setPassword(e.target.value);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:5000/auth/login', {
-        username,
-        password,
-      });
-      console.log('Login successful:', response.data);
-      // Guarda el token en el localStorage
-      localStorage.setItem('token', response.data.token);
-      // Aquí puedes manejar la respuesta del login, como redirigir a otra página
+      const data = await loginUser(username, password);
+      console.log('Login successful:', data);
+      // Manejar el éxito del login aquí, por ejemplo, redirigiendo a otra página
     } catch (error) {
-      console.error('Error logging in:', error);
+      setError(error);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <div>
-        <label>Username:</label>
-        <input
-          type="text"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-        />
-      </div>
-      <div>
-        <label>Password:</label>
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-      </div>
-      <button type="submit">Login</button>
-    </form>
+    <div>
+      <h2>Login</h2>
+      <form onSubmit={handleSubmit}>
+        <label>
+          Username:
+          <input type="text" value={username} onChange={handleUsernameChange} />
+        </label>
+        <br />
+        <label>
+          Password:
+          <input
+            type="password"
+            value={password}
+            onChange={handlePasswordChange}
+          />
+        </label>
+        <br />
+        <button type="submit">Login</button>
+      </form>
+      {error && <p>Error: {error}</p>}
+    </div>
   );
 };
 
