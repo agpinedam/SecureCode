@@ -1,54 +1,44 @@
-// src/components/Login.jsx
-
 import React, { useState } from 'react';
-import { loginUser } from '../services/api'; // Asegúrate de importarlo correctamente
+import axios from 'axios';
 
 const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-
-  const handleUsernameChange = (e) => {
-    setUsername(e.target.value);
-  };
-
-  const handlePasswordChange = (e) => {
-    setPassword(e.target.value);
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const data = await loginUser(username, password);
-      console.log('Login successful:', data);
-      // Manejar el éxito del login aquí, por ejemplo, redirigiendo a otra página
+      const response = await axios.post('http://localhost:5000/auth/login', {
+        username,
+        password,
+      });
+      console.log('Login successful:', response.data);
+      // Aquí puedes manejar la respuesta del login, como redirigir a otra página
     } catch (error) {
-      setError(error);
+      console.error('Error logging in:', error);
     }
   };
 
   return (
-    <div>
-      <h2>Login</h2>
-      <form onSubmit={handleSubmit}>
-        <label>
-          Username:
-          <input type="text" value={username} onChange={handleUsernameChange} />
-        </label>
-        <br />
-        <label>
-          Password:
-          <input
-            type="password"
-            value={password}
-            onChange={handlePasswordChange}
-          />
-        </label>
-        <br />
-        <button type="submit">Login</button>
-      </form>
-      {error && <p>Error: {error}</p>}
-    </div>
+    <form onSubmit={handleSubmit}>
+      <div>
+        <label>Username:</label>
+        <input
+          type="text"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+        />
+      </div>
+      <div>
+        <label>Password:</label>
+        <input
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+      </div>
+      <button type="submit">Login</button>
+    </form>
   );
 };
 

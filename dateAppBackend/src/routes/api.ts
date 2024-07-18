@@ -1,9 +1,9 @@
 import { Router } from 'express';
 import { formatDateController } from '../controllers/dateController';
-import { verifyToken } from '../middleware/authMiddleware';
 
 const router = Router();
 
-router.post('/formatDate', verifyToken, formatDateController);
+// Ruta para formatear la fecha
+router.post('/formatDate', formatDateController);
 
 export default router;

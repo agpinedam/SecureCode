@@ -1,26 +1,13 @@
 import { Request, Response } from 'express';
-import jwt from 'jsonwebtoken';
-import bcrypt from 'bcrypt';
 
-const loginController = async (req: Request, res: Response) => {
+export const loginController = (req: Request, res: Response) => {
   const { username, password } = req.body;
 
-  const user = {
-    username: 'user',
-    password: await bcrypt.hash('123', 10) // Hash de la contraseña para comparación
-  };
-
-  if (username === user.username) {
-    const passwordMatch = await bcrypt.compare(password, user.password);
-    if (passwordMatch) {
-      const token = jwt.sign({ username: user.username }, process.env.JWT_SECRET as string, { expiresIn: '1h' });
-      res.json({ token });
-    } else {
-      res.status(401).json({ message: 'Contraseña incorrecta' });
-    }
+  // Verifica que el usuario y contraseña sean correctos (en este caso, usuario: "user", contraseña: "123")
+  if (username === 'user' && password === '123') {
+    // Aquí puedes generar un token JWT si quieres implementar autenticación basada en tokens
+    return res.json({ message: 'Login successful' });
   } else {
-    res.status(401).json({ message: 'Usuario no encontrado' });
+    return res.status(401).json({ error: 'Invalid credentials' });
   }
 };
-
-export { loginController };
