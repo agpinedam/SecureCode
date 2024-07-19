@@ -1,16 +1,44 @@
 {
-  "name": "your-project",
+  "name": "clock",
   "version": "1.0.0",
   "main": "main.js",
+  "description": "This poroject creates a desktop application to set time on OS Ubuntu and print date in a selected format",
+  "author": "Angie Pineda <agpinedam@unal.edu.co>",
   "scripts": {
     "start": "npm run start-all",
     "start-all": "npm run init-all && npm run start-electron",
     "init-all": "cd dateAppBackend && npm install && cd ../dateAppFront && npm install",
-    "init-backend": "cd dateAppBackend && npm run daemon && npm run backend",
+    "init-backend": "cd dateAppBackend && npm run install-daemon && npm run daemon && npm run backend",
     "init-frontend": "cd dateAppFront && npm run start",
-    "start-electron": "electron ."
+    "start-electron": "electron .",
+    "build": "npm run init-all && electron-builder"
   },
   "devDependencies": {
-    "electron": "^24.3.1"
+    "electron": "^24.3.1",
+    "electron-builder": "^24.1.0"
+  },
+  "build": {
+    "appId": "com.yourapp.id",
+    "productName": "clock",
+    "directories": {
+      "buildResources": "build"
+    },
+    "files": [
+      "main.js",
+      "package.json",
+      "preload.js",
+      "dateAppBackend/**/*",
+      "dateAppFront/**/*"
+    ],
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "Utility"
+    }
+  },
+  "dependencies": {
+    "express": "^4.17.1"
   }
 }

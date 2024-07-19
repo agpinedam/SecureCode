@@ -14,3 +14,5 @@ angie ALL=(ALL) NOPASSWD: /bin/date
  tambien desactivar esto
  
  sudo timedatectl set-ntp false
+chmod +x dist/clock-1.0.0.AppImage
+./dist/clock-1.0.0.AppImage
