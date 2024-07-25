@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox
-import datetime
+from tkcalendar import DateEntry
+from datetime import datetime
 import subprocess
 import os
 import re
@@ -37,23 +38,51 @@ class NetworkClock:
         self.time_label = tk.Label(root, text="", font=("Helvetica", 48))
         self.time_label.pack(pady=20)
 
-        self.format_entry = tk.Entry(root, width=50)
+        # Frame for format entry
+        self.format_frame = tk.Frame(root)
+        self.format_frame.pack(pady=10)
+
+        self.format_label = tk.Label(self.format_frame, text="Enter Format String:")
+        self.format_label.pack(pady=5)
+
+        self.format_entry = tk.Entry(self.format_frame, width=50)
         self.format_entry.insert(0, "YYYY-MM-DD HH:mm:SS")  # Formato inicial personalizado
-        self.format_entry.pack(pady=10)
+        self.format_entry.pack(pady=5)
 
-        self.update_button = tk.Button(root, text="Update Time", command=self.update_time)
-        self.update_button.pack(pady=10)
+        self.update_button = tk.Button(self.format_frame, text="Update Time", command=self.update_time)
+        self.update_button.pack(pady=5)
 
-        self.set_time_button = tk.Button(root, text="Set System Time", command=self.set_system_time)
-        self.set_time_button.pack(pady=10)
-
-        # Etiqueta para mostrar el formato soportado
-        self.format_info_label = tk.Label(root, text=self.get_format_info(), font=("Helvetica", 10))
+        self.format_info_label = tk.Label(self.format_frame, text=self.get_format_info(), font=("Helvetica", 10))
         self.format_info_label.pack(pady=10)
 
-        # Etiqueta para mostrar caracteres no permitidos
-        self.invalid_chars_label = tk.Label(root, text="", font=("Helvetica", 10))
+        self.invalid_chars_label = tk.Label(self.format_frame, text="", font=("Helvetica", 10))
         self.invalid_chars_label.pack(pady=10)
+
+        # Frame for setting time
+        self.set_time_frame = tk.Frame(root)
+        self.set_time_frame.pack(pady=10)
+
+        self.label = tk.Label(self.set_time_frame, text="Select Date and Time:")
+        self.label.pack(pady=5)
+
+        # Create a date entry widget
+        self.date_entry = DateEntry(self.set_time_frame, width=12, background='darkblue',
+                                    foreground='white', borderwidth=2, date_pattern='y-mm-dd')
+        self.date_entry.pack(pady=5)
+
+        # Create a time entry widget
+        self.hour_entry = tk.Spinbox(self.set_time_frame, from_=0, to=23, format='%02.0f', width=3, state="normal")
+        self.minute_entry = tk.Spinbox(self.set_time_frame, from_=0, to=59, format='%02.0f', width=3, state="normal")
+        self.second_entry = tk.Spinbox(self.set_time_frame, from_=0, to=59, format='%02.0f', width=3, state="normal")
+
+        self.hour_entry.pack(side=tk.LEFT, padx=5)
+        tk.Label(self.set_time_frame, text=":").pack(side=tk.LEFT)
+        self.minute_entry.pack(side=tk.LEFT, padx=5)
+        tk.Label(self.set_time_frame, text=":").pack(side=tk.LEFT)
+        self.second_entry.pack(side=tk.LEFT, padx=5)
+
+        self.set_time_button = tk.Button(self.set_time_frame, text="Set System Time", command=self.open_calendar)
+        self.set_time_button.pack(pady=10)
 
         self.update_time()
 
@@ -68,7 +97,7 @@ class NetworkClock:
         
         try:
             converted_format = convert_format(format_str)
-            current_time = datetime.datetime.now().strftime(converted_format)
+            current_time = datetime.now().strftime(converted_format)
             self.time_label.config(text=current_time)
             self.invalid_chars_label.config(text="")
         except ValueError:
@@ -77,16 +106,25 @@ class NetworkClock:
 
         self.root.after(1000, self.update_time)
 
-    def set_system_time(self):
-        new_time = self.format_entry.get()
-        invalid_chars = validate_format(new_time)
+    def open_calendar(self):
+        date = self.date_entry.get_date()
+        hour = self.hour_entry.get()
+        minute = self.minute_entry.get()
+        second = self.second_entry.get()
 
-        if invalid_chars:
-            messagebox.showerror("Error", f"Invalid characters: {', '.join(set(invalid_chars))}")
-            return
-        
+        # Combine date and time
         try:
-            result = subprocess.run(['sudo', 'python3', os.path.abspath('time_setup.py'), new_time], capture_output=True, text=True)
+            datetime_str = f"{date.strftime('%Y-%m-%d')} {hour}:{minute}:{second}"
+            datetime.strptime(datetime_str, '%Y-%m-%d %H:%M:%S')
+            self.set_system_time(datetime_str)
+        except ValueError:
+            messagebox.showerror("Error", "Invalid date/time format. Use YYYY-MM-DD HH:MM:SS.")
+    
+    def set_system_time(self, new_time):
+        try:
+            # Execute the time_setup.py script with elevated privileges
+            result = subprocess.run(['pkexec', 'python3', os.path.abspath('time_setup.py'), new_time],
+                                    capture_output=True, text=True)
             if result.returncode == 0:
                 messagebox.showinfo("Success", result.stdout)
             else:
