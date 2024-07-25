@@ -3,12 +3,13 @@ from tkinter import messagebox
 import datetime
 import subprocess
 import os
+import re
 
 def convert_format(custom_format):
     # Mapea formatos personalizados a los que `strftime` entiende
     conversion_map = {
         'YYYY': '%Y',
-        'YY': '%y',
+        'yy': '%y',
         'MM': '%m',
         'DD': '%d',
         'HH': '%H',
@@ -21,6 +22,12 @@ def convert_format(custom_format):
         custom_format = custom_format.replace(key, value)
     
     return custom_format
+
+def validate_format(format_str):
+    # Define los caracteres permitidos
+    valid_chars = re.compile(r'^[\w\s\-:\./%]+$')
+    invalid_chars = [char for char in format_str if not valid_chars.match(char)]
+    return invalid_chars
 
 class NetworkClock:
     def __init__(self, root):
@@ -44,22 +51,42 @@ class NetworkClock:
         self.format_info_label = tk.Label(root, text=self.get_format_info(), font=("Helvetica", 10))
         self.format_info_label.pack(pady=10)
 
+        # Etiqueta para mostrar caracteres no permitidos
+        self.invalid_chars_label = tk.Label(root, text="", font=("Helvetica", 10))
+        self.invalid_chars_label.pack(pady=10)
+
         self.update_time()
 
     def update_time(self):
         format_str = self.format_entry.get()
+        invalid_chars = validate_format(format_str)
+
+        if invalid_chars:
+            self.invalid_chars_label.config(text=f"Invalid characters: {', '.join(set(invalid_chars))}")
+            self.time_label.config(text="Invalid format")
+            return
+        
         try:
             converted_format = convert_format(format_str)
             current_time = datetime.datetime.now().strftime(converted_format)
             self.time_label.config(text=current_time)
+            self.invalid_chars_label.config(text="")
         except ValueError:
             self.time_label.config(text="Invalid format")
+            self.invalid_chars_label.config(text="")
+
         self.root.after(1000, self.update_time)
 
     def set_system_time(self):
         new_time = self.format_entry.get()
+        invalid_chars = validate_format(new_time)
+
+        if invalid_chars:
+            messagebox.showerror("Error", f"Invalid characters: {', '.join(set(invalid_chars))}")
+            return
+        
         try:
-            result = subprocess.run(['pkexec', 'python3', os.path.abspath('time_setup.py'), new_time], capture_output=True, text=True)
+            result = subprocess.run(['sudo', 'python3', os.path.abspath('time_setup.py'), new_time], capture_output=True, text=True)
             if result.returncode == 0:
                 messagebox.showinfo("Success", result.stdout)
             else:
