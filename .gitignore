@@ -1,0 +1,35 @@
+# Entorno virtual
+.venv/
+env/
+venv/
+
+# Archivos de compilación
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+
+# Archivos de configuración del editor
+.vscode/
+.idea/
+
+# Archivos de log
+*.log
+
+# Configuración del sistema
+*.swp
+*.swo
+
+# Archivos de salida generados automáticamente
+output.txt
+*.zip
+
+# Archivos específicos del sistema operativo
+*.sublime-workspace
+*.sublime-project
+
+*.sh

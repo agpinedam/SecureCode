@@ -136,7 +136,6 @@ class NetworkClock:
 
     def set_system_time(self, new_time):
         try:
-            # Ejecuta el script update_time.py con pkexec para elevar privilegios
             result = subprocess.run(['pkexec', 'python3', os.path.abspath('update_time.py'), new_time],
                                     capture_output=True, text=True)
             if result.returncode == 0:

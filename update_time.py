@@ -8,7 +8,6 @@ if len(sys.argv) != 2:
 new_time = sys.argv[1]
 
 try:
-    # Ejecuta el comando `date` para actualizar el tiempo del sistema
     result = subprocess.run(['date', '-s', new_time], capture_output=True, text=True, check=True)
     print("System time updated successfully")
 except subprocess.CalledProcessError as e:

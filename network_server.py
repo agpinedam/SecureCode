@@ -1,6 +1,5 @@
 import socket
 import threading
-import datetime
 
 def handle_client(client_socket):
     request = client_socket.recv(1024).decode('utf-8')
@@ -26,5 +25,8 @@ def start_server(port):
         client_handler.start()
 
 if __name__ == "__main__":
-    port = 12345  # Default port; can be read from a config file
+    import configparser
+    config = configparser.ConfigParser()
+    config.read('config.txt')
+    port = int(config.get('Settings', 'Port', fallback=12345))  # Default port; can be read from a config file
     start_server(port)
