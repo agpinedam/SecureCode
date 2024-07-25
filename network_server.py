@@ -1,17 +1,37 @@
 import socket
 import threading
+import datetime
+import re
 
 def handle_client(client_socket):
-    request = client_socket.recv(1024).decode('utf-8')
     try:
-        format_str = request.strip()
-        current_time = datetime.datetime.now().strftime(format_str)
+        data = b''
+        while True:
+            part = client_socket.recv(4096)
+            if not part:
+                break
+            data += part
+        
+        request = data.decode('utf-8').strip()
+        if not validate_format(request):
+            client_socket.send(b"Invalid format")
+            return
+        
+        current_time = datetime.datetime.now().strftime(request)
         client_socket.send(current_time.encode('utf-8'))
     except ValueError:
         client_socket.send(b"Invalid format")
     except Exception as e:
         client_socket.send(f"Error: {str(e)}".encode('utf-8'))
-    client_socket.close()
+    finally:
+        client_socket.close()
+
+def validate_format(format_str):
+    try:
+        datetime.datetime.now().strftime(format_str)
+        return True
+    except ValueError:
+        return False
 
 def start_server(port):
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -24,9 +44,15 @@ def start_server(port):
         client_handler = threading.Thread(target=handle_client, args=(client_socket,))
         client_handler.start()
 
+def load_port_from_config():
+    try:
+        with open('config.txt', 'r') as f:
+            port = int(f.read().strip())
+    except Exception as e:
+        print(f"Error reading config file: {e}")
+        port = 12345  # Default port
+    return port
+
 if __name__ == "__main__":
-    import configparser
-    config = configparser.ConfigParser()
-    config.read('config.txt')
-    port = int(config.get('Settings', 'Port', fallback=12345))  # Default port; can be read from a config file
+    port = load_port_from_config()
     start_server(port)
