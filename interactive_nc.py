@@ -7,7 +7,6 @@ import os
 import re
 
 def convert_format(custom_format):
-    # Mapea formatos personalizados a los que `strftime` entiende
     conversion_map = {
         'YYYY': '%Y',
         'yy': '%y',
@@ -18,17 +17,32 @@ def convert_format(custom_format):
         'SS': '%S',
     }
 
-    # Reemplaza los patrones personalizados en el formato
     for key, value in conversion_map.items():
         custom_format = custom_format.replace(key, value)
     
     return custom_format
 
 def validate_format(format_str):
-    # Define los caracteres permitidos
     valid_chars = re.compile(r'^[\w\s\-:\./%]+$')
-    invalid_chars = [char for char in format_str if not valid_chars.match(char)]
-    return invalid_chars
+    if not valid_chars.match(format_str):
+        return "Format contains invalid characters."
+    
+    if 'YYYY' not in format_str and 'yy' not in format_str:
+        return "Year specifier ('YYYY' or 'yy') is required."
+    
+    return None
+
+def validate_time(hour, minute, second):
+    try:
+        hour = int(hour)
+        minute = int(minute)
+        second = int(second)
+        
+        if not (0 <= hour <= 23 and 0 <= minute <= 59 and 0 <= second <= 59):
+            return "Time values out of range."
+        return None
+    except ValueError:
+        return "Invalid time values."
 
 class NetworkClock:
     def __init__(self, root):
@@ -38,7 +52,6 @@ class NetworkClock:
         self.time_label = tk.Label(root, text="", font=("Helvetica", 48))
         self.time_label.pack(pady=20)
 
-        # Frame for format entry
         self.format_frame = tk.Frame(root)
         self.format_frame.pack(pady=10)
 
@@ -46,7 +59,7 @@ class NetworkClock:
         self.format_label.pack(pady=5)
 
         self.format_entry = tk.Entry(self.format_frame, width=50)
-        self.format_entry.insert(0, "YYYY-MM-DD HH:mm:SS")  # Formato inicial personalizado
+        self.format_entry.insert(0, "YYYY-MM-DD HH:mm:SS")
         self.format_entry.pack(pady=5)
 
         self.update_button = tk.Button(self.format_frame, text="Update Time", command=self.update_time)
@@ -58,22 +71,19 @@ class NetworkClock:
         self.invalid_chars_label = tk.Label(self.format_frame, text="", font=("Helvetica", 10))
         self.invalid_chars_label.pack(pady=10)
 
-        # Frame for setting time
         self.set_time_frame = tk.Frame(root)
         self.set_time_frame.pack(pady=10)
 
         self.label = tk.Label(self.set_time_frame, text="Select Date and Time:")
         self.label.pack(pady=5)
 
-        # Create a date entry widget
         self.date_entry = DateEntry(self.set_time_frame, width=12, background='darkblue',
                                     foreground='white', borderwidth=2, date_pattern='y-mm-dd')
         self.date_entry.pack(pady=5)
 
-        # Create a time entry widget
-        self.hour_entry = tk.Spinbox(self.set_time_frame, from_=0, to=23, format='%02.0f', width=3, state="normal")
-        self.minute_entry = tk.Spinbox(self.set_time_frame, from_=0, to=59, format='%02.0f', width=3, state="normal")
-        self.second_entry = tk.Spinbox(self.set_time_frame, from_=0, to=59, format='%02.0f', width=3, state="normal")
+        self.hour_entry = tk.Spinbox(self.set_time_frame, from_=0, to=23, format='%02.0f', width=3)
+        self.minute_entry = tk.Spinbox(self.set_time_frame, from_=0, to=59, format='%02.0f', width=3)
+        self.second_entry = tk.Spinbox(self.set_time_frame, from_=0, to=59, format='%02.0f', width=3)
 
         self.hour_entry.pack(side=tk.LEFT, padx=5)
         tk.Label(self.set_time_frame, text=":").pack(side=tk.LEFT)
@@ -88,10 +98,10 @@ class NetworkClock:
 
     def update_time(self):
         format_str = self.format_entry.get()
-        invalid_chars = validate_format(format_str)
+        error_message = validate_format(format_str)
 
-        if invalid_chars:
-            self.invalid_chars_label.config(text=f"Invalid characters: {', '.join(set(invalid_chars))}")
+        if error_message:
+            self.invalid_chars_label.config(text=error_message)
             self.time_label.config(text="Invalid format")
             return
         
@@ -112,7 +122,11 @@ class NetworkClock:
         minute = self.minute_entry.get()
         second = self.second_entry.get()
 
-        # Combine date and time
+        error_message = validate_time(hour, minute, second)
+        if error_message:
+            messagebox.showerror("Error", error_message)
+            return
+        
         try:
             datetime_str = f"{date.strftime('%Y-%m-%d')} {hour}:{minute}:{second}"
             datetime.strptime(datetime_str, '%Y-%m-%d %H:%M:%S')
@@ -122,9 +136,10 @@ class NetworkClock:
     
     def set_system_time(self, new_time):
         try:
-            # Execute the time_setup.py script with elevated privileges
-            result = subprocess.run(['pkexec', 'python3', os.path.abspath('time_setup.py'), new_time],
-                                    capture_output=True, text=True)
+            result = subprocess.run(
+                ['pkexec', 'python3', os.path.abspath('time_setup.py'), new_time],
+                capture_output=True, text=True
+            )
             if result.returncode == 0:
                 messagebox.showinfo("Success", result.stdout)
             else:
@@ -133,7 +148,6 @@ class NetworkClock:
             messagebox.showerror("Error", f"Failed to update system time: {str(e)}")
 
     def get_format_info(self):
-        # Proporciona información sobre los caracteres de formato soportados
         info = (
             "Format Specifiers:\n"
             "YYYY - Full year (e.g., 2024)\n"
