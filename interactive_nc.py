@@ -24,25 +24,8 @@ def convert_format(custom_format):
 
 def validate_format(format_str):
     valid_chars = re.compile(r'^[\w\s\-:\./%]+$')
-    if not valid_chars.match(format_str):
-        return "Format contains invalid characters."
-    
-    if 'YYYY' not in format_str and 'yy' not in format_str:
-        return "Year specifier ('YYYY' or 'yy') is required."
-    
-    return None
-
-def validate_time(hour, minute, second):
-    try:
-        hour = int(hour)
-        minute = int(minute)
-        second = int(second)
-        
-        if not (0 <= hour <= 23 and 0 <= minute <= 59 and 0 <= second <= 59):
-            return "Time values out of range."
-        return None
-    except ValueError:
-        return "Invalid time values."
+    invalid_chars = [char for char in format_str if not valid_chars.match(char)]
+    return invalid_chars
 
 class NetworkClock:
     def __init__(self, root):
@@ -81,15 +64,9 @@ class NetworkClock:
                                     foreground='white', borderwidth=2, date_pattern='y-mm-dd')
         self.date_entry.pack(pady=5)
 
-        self.hour_entry = tk.Spinbox(self.set_time_frame, from_=0, to=23, format='%02.0f', width=3)
-        self.minute_entry = tk.Spinbox(self.set_time_frame, from_=0, to=59, format='%02.0f', width=3)
-        self.second_entry = tk.Spinbox(self.set_time_frame, from_=0, to=59, format='%02.0f', width=3)
-
-        self.hour_entry.pack(side=tk.LEFT, padx=5)
-        tk.Label(self.set_time_frame, text=":").pack(side=tk.LEFT)
-        self.minute_entry.pack(side=tk.LEFT, padx=5)
-        tk.Label(self.set_time_frame, text=":").pack(side=tk.LEFT)
-        self.second_entry.pack(side=tk.LEFT, padx=5)
+        self.time_entry = tk.Entry(self.set_time_frame, width=20)
+        self.time_entry.insert(0, "HH:MM:SS")
+        self.time_entry.pack(pady=5)
 
         self.set_time_button = tk.Button(self.set_time_frame, text="Set System Time", command=self.open_calendar)
         self.set_time_button.pack(pady=10)
@@ -98,10 +75,10 @@ class NetworkClock:
 
     def update_time(self):
         format_str = self.format_entry.get()
-        error_message = validate_format(format_str)
+        invalid_chars = validate_format(format_str)
 
-        if error_message:
-            self.invalid_chars_label.config(text=error_message)
+        if invalid_chars:
+            self.invalid_chars_label.config(text=f"Invalid characters: {', '.join(set(invalid_chars))}")
             self.time_label.config(text="Invalid format")
             return
         
@@ -118,17 +95,9 @@ class NetworkClock:
 
     def open_calendar(self):
         date = self.date_entry.get_date()
-        hour = self.hour_entry.get()
-        minute = self.minute_entry.get()
-        second = self.second_entry.get()
-
-        error_message = validate_time(hour, minute, second)
-        if error_message:
-            messagebox.showerror("Error", error_message)
-            return
-        
+        time = self.time_entry.get()
         try:
-            datetime_str = f"{date.strftime('%Y-%m-%d')} {hour}:{minute}:{second}"
+            datetime_str = f"{date.strftime('%Y-%m-%d')} {time}"
             datetime.strptime(datetime_str, '%Y-%m-%d %H:%M:%S')
             self.set_system_time(datetime_str)
         except ValueError:
@@ -136,10 +105,8 @@ class NetworkClock:
     
     def set_system_time(self, new_time):
         try:
-            result = subprocess.run(
-                ['pkexec', 'python3', os.path.abspath('time_setup.py'), new_time],
-                capture_output=True, text=True
-            )
+            result = subprocess.run(['pkexec', 'python3', os.path.abspath('update_time.py'), new_time],
+                                    capture_output=True, text=True)
             if result.returncode == 0:
                 messagebox.showinfo("Success", result.stdout)
             else:

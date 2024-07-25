@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<policyconfig>
+  <policy user="root">
+    <allow user="*"/>
+    <action id="com.example.update_time">
+      <description>Update System Time</description>
+      <message>Authentication is required to update the system time.</message>
+      <defaults>
+        <allow_any>
+          <action>org.freedesktop.policykit.exec.read</action>
+        </allow_any>
+      </defaults>
+    </action>
+  </policy>
+</policyconfig>
