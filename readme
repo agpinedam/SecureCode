@@ -1,0 +1,17 @@
+# Network Clock
+
+Este es un proyecto de aplicación de reloj que permite a los usuarios actualizar la hora del sistema utilizando una interfaz gráfica.
+
+## Requisitos
+
+- Python 3.x
+- Tkinter
+- tkcalendar
+
+## Instalación
+
+1. Clona el repositorio o descarga el código.
+2. Instala las dependencias:
+
+```sh
+pip install -r requirements.txt
