@@ -1,37 +1,21 @@
 import socket
 import threading
 import datetime
-import re
 
-def handle_client(client_socket):
+def handle_client(client_socket, addr):
+    print(f"Accepted connection from {addr}")
     try:
-        data = b''
-        while True:
-            part = client_socket.recv(4096)
-            if not part:
-                break
-            data += part
-        
-        request = data.decode('utf-8').strip()
-        if not validate_format(request):
-            client_socket.send(b"Invalid format")
-            return
-        
-        current_time = datetime.datetime.now().strftime(request)
-        client_socket.send(current_time.encode('utf-8'))
-    except ValueError:
-        client_socket.send(b"Invalid format")
-    except Exception as e:
-        client_socket.send(f"Error: {str(e)}".encode('utf-8'))
-    finally:
+        data = client_socket.recv(1024).decode('utf-8').strip()
+        if data:
+            print(f"Received request: '{data}'")
+            current_time = datetime.datetime.now().strftime(data)
+            response = f"{current_time}\n"
+            client_socket.send(response.encode('utf-8'))
+            print(f"Sending response: '{response.strip()}'")
         client_socket.close()
-
-def validate_format(format_str):
-    try:
-        datetime.datetime.now().strftime(format_str)
-        return True
-    except ValueError:
-        return False
+    except Exception as e:
+        print(f"Error: {e}")
+        client_socket.close()
 
 def start_server(port):
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -41,7 +25,7 @@ def start_server(port):
 
     while True:
         client_socket, addr = server.accept()
-        client_handler = threading.Thread(target=handle_client, args=(client_socket,))
+        client_handler = threading.Thread(target=handle_client, args=(client_socket, addr))
         client_handler.start()
 
 def load_port_from_config():
