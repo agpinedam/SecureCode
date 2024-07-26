@@ -1,18 +1,72 @@
 # Network Clock Project
 
-## Descripción
+## Description
 
-Esta aplicación permite al usuario visualizar la hora actual en un formato personalizado y configurar la hora del sistema. La aplicación consta de un servidor que acepta peticiones de formato de hora y una interfaz gráfica para interactuar con el servidor y actualizar la hora del sistema.
+The Network Clock Project enables users to view the current time in a custom format and configure the system time. The project consists of:
+- A server script that listens for requests and returns the current time in the requested format.
+- A client script with a graphical user interface (GUI) that allows users to request the time and set the system clock.
 
-## Requisitos
+## Requirements
 
 - Python 3.x
-- `tkcalendar` (para la interfaz gráfica)
-- Privilegios de administrador para la configuración de la hora
+- tkcalendar for the graphical user interface
+- Administrator privileges for updating the system time
 
-## Instalación
+## Installation
 
-1. **Instalar dependencias:**
+1. **Install Dependencies:**
+
+   Install the required Python package using pip:
 
    ```sh
    pip install tkcalendar
+
+2. **Download the Project Files:**
+
+    Ensure you have the following files:
+        network_server.py: The server script for providing the current time.
+        network_clock.py: The client script with the GUI for requesting and displaying the time.
+        update_time.py: A script for updating the system time (requires administrator privileges).
+
+## Usage
+
+1. **Start the Server:**
+
+    Launch the server script to begin listening for requests:
+
+   ```sh
+   python3 network_server.py
+
+The server will listen on the port specified in config.txt or default to port 12345 if the configuration file is missing.
+
+2. **Run the Client:**
+
+Start the graphical user interface by running:
+
+   ```sh
+    python3 network_clock.py
+   ```
+
+* Enter Format String: Input the desired time format string. For example, **YYYY-MM-DD HH:mm:SS.**
+
+* Update Time: Click the "Update Time" button to refresh the displayed time.
+* Select Date and Time: Use the calendar and spinboxes to choose and set the date and time.
+* Set System Time: Click "Set System Time" to update the system clock with the selected date and time. This operation requires administrator privileges.
+
+## Format Specifiers##
+
+The format string can include the following specifiers:
+
+   * YYYY - Full year (e.g., 2024)
+   * yy - Two-digit year (e.g., 24)
+   * MM - Month (01 to 12)
+   * DD - Day of the month (01 to 31)
+   * HH - Hour (00 to 23)
+   * mm - Minutes (00 to 59)
+   * SS - Seconds (00 to 59)
+
+## Troubleshooting##
+
+   * Ensure the server is running before starting the client.
+   * Verify you have the necessary permissions to update the system time.
+   * If the client displays "Invalid format," check the format string for correctness.
