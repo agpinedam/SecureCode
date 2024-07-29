@@ -2,9 +2,25 @@ import tkinter as tk
 from tkinter import messagebox
 from tkcalendar import DateEntry
 from datetime import datetime
-import os
+import socket
+import threading
 import re
 import ctypes
+import os
+
+# Funciones de servidor
+FORMAT_CONVERSIONS = {
+    'YYYY-MM-DD HH:mm:SS': '%Y-%m-%d %H:%M:%S',
+    'YYYY/MM/DD HH:mm:SS': '%Y/%m/%d %H:%M:%S',
+    'DD-MM-YYYY HH:mm:SS': '%d-%m-%Y %H:%M:%S',
+    'DD/MM/YYYY HH:mm:SS': '%d/%m/%Y %H:%M:%S',
+    'YYYY-MM-DD HH:mm': '%Y-%m-%d %H:%M',
+    'DD-MM-YYYY HH:mm': '%d-%m-%Y %H:%M',
+    'YYYY-MM-DD': '%Y-%m-%d',
+    'DD-MM-YYYY': '%d-%m-%Y',
+    'HH:mm:SS': '%H:%M:%S',
+    'HH:mm': '%H:%M'
+}
 
 def convert_format(custom_format):
     conversion_map = {
@@ -16,7 +32,6 @@ def convert_format(custom_format):
         'mm': '%M',
         'SS': '%S',
     }
-    # Convierte el formato personalizado en el formato de strftime
     for key, value in conversion_map.items():
         custom_format = custom_format.replace(key, value)
     return custom_format
@@ -29,6 +44,37 @@ def validate_format(format_str):
         return "At least one time specifier is required (e.g., 'HH:mm')."
     return None
 
+def handle_client(client_socket, addr):
+    print(f"Accepted connection from {addr}")
+    try:
+        data = client_socket.recv(1024).decode('utf-8').strip()
+        if data:
+            print(f"Received request: '{data}'")
+            converted_format = convert_format(data)
+            if converted_format:
+                current_time = datetime.now().strftime(converted_format)
+                response = f"{current_time}\n"
+            else:
+                response = "Invalid format\n"
+            client_socket.send(response.encode('utf-8'))
+            print(f"Sending response: '{response.strip()}'")
+        client_socket.close()
+    except Exception as e:
+        print(f"Error: {e}")
+        client_socket.close()
+
+def start_server(port):
+    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server.bind(('0.0.0.0', port))
+    server.listen(5)
+    print(f"Server listening on port {port}")
+
+    while True:
+        client_socket, addr = server.accept()
+        client_handler = threading.Thread(target=handle_client, args=(client_socket, addr))
+        client_handler.start()
+
+# Funciones de cliente
 def validate_time(hour, minute, second):
     try:
         hour = int(hour)
@@ -100,6 +146,10 @@ class NetworkClock:
 
         self.update_time()
 
+        # Inicia el servidor en un hilo
+        self.server_thread = threading.Thread(target=self.start_server, args=(self.load_port_from_config(),), daemon=True)
+        self.server_thread.start()
+
     def update_time(self):
         format_str = self.format_entry.get()
         error_message = validate_format(format_str)
@@ -132,7 +182,6 @@ class NetworkClock:
 
     def set_system_time(self, new_time):
         try:
-            # Dependiendo del sistema operativo, usamos la API correspondiente
             if os.name == 'nt':  # Windows
                 self.set_system_time_windows(new_time)
             elif os.name == 'posix':  # Unix/Linux
@@ -145,14 +194,11 @@ class NetworkClock:
             messagebox.showerror("Error", f"Failed to update system time: {str(e)}")
 
     def set_system_time_windows(self, new_time):
-        # Implementación específica para Windows usando win32api
         import win32api
         dt = datetime.strptime(new_time, '%Y-%m-%d %H:%M:%S')
         win32api.SetSystemTime(dt.year, dt.month, dt.weekday() + 1, dt.day, dt.hour, dt.minute, dt.second, 0)
 
     def set_system_time_unix(self, new_time):
-        # Implementación específica para Unix/Linux usando ctypes
-        # Esta es una llamada ficticia; asegúrate de usar un método seguro y adecuado para tu sistema
         class TimeVal(ctypes.Structure):
             _fields_ = [("tv_sec", ctypes.c_long), ("tv_usec", ctypes.c_long)]
 
@@ -162,6 +208,26 @@ class NetworkClock:
         tv.tv_sec = int(dt.timestamp())
         tv.tv_usec = 0
         libc.settimeofday(ctypes.byref(tv), None)
+
+    def start_server(self, port):
+        server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        server.bind(('0.0.0.0', port))
+        server.listen(5)
+        print(f"Server listening on port {port}")
+
+        while True:
+            client_socket, addr = server.accept()
+            client_handler = threading.Thread(target=handle_client, args=(client_socket, addr))
+            client_handler.start()
+
+    def load_port_from_config(self):
+        try:
+            with open('config.txt', 'r') as f:
+                port = int(f.read().strip())
+        except Exception as e:
+            print(f"Error reading config file: {e}")
+            port = 12345  # Default port
+        return port
 
     def get_format_info(self):
         info = (
