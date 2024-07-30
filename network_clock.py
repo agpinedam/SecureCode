@@ -1,14 +1,14 @@
+import ctypes
+import os
+import socket
+import threading
+import re
 import tkinter as tk
 from tkinter import messagebox
 from tkcalendar import DateEntry
 from datetime import datetime
-import socket
-import threading
-import re
-import ctypes
-import os
 
-# Funciones de servidor
+# Server functions
 FORMAT_CONVERSIONS = {
     'YYYY-MM-DD HH:mm:SS': '%Y-%m-%d %H:%M:%S',
     'YYYY/MM/DD HH:mm:SS': '%Y/%m/%d %H:%M:%S',
@@ -44,6 +44,17 @@ def validate_format(format_str):
         return "At least one time specifier is required (e.g., 'HH:mm')."
     return None
 
+def validate_port(port):
+    """Validate the port number."""
+    try:
+        port = int(port)
+        if 1 <= port <= 65535:
+            return None
+        else:
+            return "Port must be between 1 and 65535."
+    except ValueError:
+        return "Port must be an integer."
+
 def handle_client(client_socket, addr):
     print(f"Accepted connection from {addr}")
     try:
@@ -62,37 +73,6 @@ def handle_client(client_socket, addr):
     except Exception as e:
         print(f"Error: {e}")
         client_socket.close()
-
-def start_server(port):
-    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server.bind(('0.0.0.0', port))
-    server.listen(5)
-    print(f"Server listening on port {port}")
-
-    while True:
-        client_socket, addr = server.accept()
-        client_handler = threading.Thread(target=handle_client, args=(client_socket, addr))
-        client_handler.start()
-
-# Funciones de cliente
-def validate_time(hour, minute, second):
-    try:
-        hour = int(hour)
-        minute = int(minute)
-        second = int(second)
-        if not (0 <= hour <= 23 and 0 <= minute <= 59 and 0 <= second <= 59):
-            return "Time values out of range."
-        return None
-    except ValueError:
-        return "Invalid time values."
-
-def format_datetime(date, time):
-    try:
-        datetime_str = f"{date.strftime('%Y-%m-%d')} {time}"
-        datetime.strptime(datetime_str, '%Y-%m-%d %H:%M:%S')
-        return datetime_str
-    except ValueError:
-        return None
 
 class NetworkClock:
     def __init__(self, root):
@@ -146,7 +126,7 @@ class NetworkClock:
 
         self.update_time()
 
-        # Inicia el servidor en un hilo
+        # Start the server in a separate thread
         self.server_thread = threading.Thread(target=self.start_server, args=(self.load_port_from_config(),), daemon=True)
         self.server_thread.start()
 
@@ -210,6 +190,12 @@ class NetworkClock:
         libc.settimeofday(ctypes.byref(tv), None)
 
     def start_server(self, port):
+        # Validate the port before starting the server
+        port_error = validate_port(port)
+        if port_error:
+            print(port_error)
+            return
+
         server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         server.bind(('0.0.0.0', port))
         server.listen(5)
@@ -241,6 +227,14 @@ class NetworkClock:
             "SS - Seconds (00 to 59)"
         )
         return info
+
+def format_datetime(date, time):
+    try:
+        datetime_str = f"{date.strftime('%Y-%m-%d')} {time}"
+        datetime.strptime(datetime_str, '%Y-%m-%d %H:%M:%S')
+        return datetime_str
+    except ValueError:
+        return None
 
 if __name__ == "__main__":
     root = tk.Tk()
