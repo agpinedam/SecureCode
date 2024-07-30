@@ -1,4 +1,4 @@
-import ctypes
+import subprocess
 import os
 import socket
 import threading
@@ -156,38 +156,20 @@ class NetworkClock:
         datetime_str = format_datetime(date, time)
 
         if datetime_str:
-            self.set_system_time(datetime_str)
+            try:
+                # Execute update_time.py with elevated privileges
+                result = subprocess.run(
+                    ['pkexec', 'python3', os.path.abspath('update_time.py'), datetime_str],
+                    capture_output=True, text=True
+                )
+                if result.returncode == 0:
+                    messagebox.showinfo("Success", "System time updated successfully")
+                else:
+                    messagebox.showerror("Error", result.stderr)
+            except Exception as e:
+                messagebox.showerror("Error", str(e))
         else:
             messagebox.showerror("Error", "Invalid date/time format. Use YYYY-MM-DD HH:MM:SS.")
-
-    def set_system_time(self, new_time):
-        try:
-            if os.name == 'nt':  # Windows
-                self.set_system_time_windows(new_time)
-            elif os.name == 'posix':  # Unix/Linux
-                self.set_system_time_unix(new_time)
-            else:
-                messagebox.showerror("Error", "Unsupported operating system")
-                return
-            messagebox.showinfo("Success", "System time updated successfully")
-        except Exception as e:
-            messagebox.showerror("Error", f"Failed to update system time: {str(e)}")
-
-    def set_system_time_windows(self, new_time):
-        import win32api
-        dt = datetime.strptime(new_time, '%Y-%m-%d %H:%M:%S')
-        win32api.SetSystemTime(dt.year, dt.month, dt.weekday() + 1, dt.day, dt.hour, dt.minute, dt.second, 0)
-
-    def set_system_time_unix(self, new_time):
-        class TimeVal(ctypes.Structure):
-            _fields_ = [("tv_sec", ctypes.c_long), ("tv_usec", ctypes.c_long)]
-
-        libc = ctypes.CDLL("libc.so.6")
-        tv = TimeVal()
-        dt = datetime.strptime(new_time, '%Y-%m-%d %H:%M:%S')
-        tv.tv_sec = int(dt.timestamp())
-        tv.tv_usec = 0
-        libc.settimeofday(ctypes.byref(tv), None)
 
     def start_server(self, port):
         # Validate the port before starting the server
